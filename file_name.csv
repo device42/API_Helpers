@@ -1,4 +1,0 @@
-name, key, value, value2, show_on_chart, notes
-iis server, test2, test2,,,
-iis server, Backup location, ,c:\sql\, yes, test notes
-
