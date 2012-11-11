@@ -26,29 +26,26 @@ urlpass = 'your-d42-password-here'
 
 def post(url, method, params):
     result = ''
-    try:
-        data= urllib.urlencode(params)
-        headers = {
+    data= urllib.urlencode(params)
+    headers = {
             'Authorization' : 'Basic '+ base64.b64encode(urluser + ':' + urlpass),
             'Content-Type' : 'application/x-www-form-urlencoded'
         }
 
-        req = urllib2.Request(url, data, headers)
+    req = urllib2.Request(url, data, headers)
 
-        print '---REQUEST---',req.get_full_url()
-        print req.headers
-        print req.data
+    print '---REQUEST---',req.get_full_url()
+    print req.headers
+    print req.data
 
-        if method == 'put': req.get_method = lambda: 'PUT'
+    if method == 'put': req.get_method = lambda: 'PUT'
 
-        reponse = urllib2.urlopen(req)
+    response = urllib2.urlopen(req)
 
-        print '---RESPONSE---'
-        print reponse
-        result = str(reponse.read())
-    except Exception, Err:
-        print '-----EXCEPTION OCCURED-----'
-        print str(Err)
+    print '---RESPONSE---'
+    print response
+    result = str(response.read())
+
     return result
 
 def to_ascii(s): #not used in example, but provided incase you would need to convert certain values to ascii
