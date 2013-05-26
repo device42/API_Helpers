@@ -7,9 +7,9 @@ This repository hosts a python script to easily input data to device42 appliance
 -----------------------------
    * csv2d42apis.py : Reads a CSV file, matches columns to arguments for APIs and sends data to device42 via POST or PUT.
 
-### Requirements
+### Requirement
 -----------------------------
-   * Python. Tested with python 2.4-2.7.
+   * Python. Tested with python 2.7.x
    * If you don't have python installed already, you can download and install from: [http://www.python.org/download/releases/](http://www.python.org/download/releases/)
 
 
