@@ -8,11 +8,12 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-##############################################
-# csv file to api helper utility v2.0
-# create csv, match the column values with arguments in changerow_to_api_args function call
-# and upload data to device42 via REST APIs
-##############################################
+############################################################################################
+# csv file to api helper utility v2.1 that uploads data to device42 via REST APIs
+# step 1: create csv file, comma separated, header row must match the arguments for the API call.
+# step 2: Change lines 26-31
+# step 3: Execute the script
+############################################################################################
 import types
 import urllib2
 import urllib
@@ -55,21 +56,10 @@ def to_ascii(s): #not used in example, but provided incase you would need to con
     else:
         return str(s)
 
-def changerow_to_api_args(row_values):
-
-    #map each row value to corresponding API argument.
-    #row index starts from zero.
-    #change this to match your CSV column values to API arguments to map to.
-    #following example is for application component custom key pair values.
-    #csv file columns are: application component name, key, value, value2, show on chart, notes
-    #mapping index would be:  0                     , 1    , 2,     3,      4,              5
-    #create a dictionary from values, that can be passed to api call.
-
-    args = {'name': row_values[0], 'key': row_values[1]}
-    if row_values[2]: args.update({'value': row_values[2]})         #use if condition if the value can be empty
-    if row_values[3]: args.update({'value2': row_values[3]})
-    if row_values[4]: args.update({'show_on_chart': row_values[4]})
-    if row_values[5]: args.update({'notes': row_values[5]})
+def changerow_to_api_args(row_values, header_row):
+    args = {}
+    for i, heading in enumerate(header_row):
+        if row_values[i]: args.update({heading.strip().lower(): row_values[i].strip()})
     return args
 
 def read_csv_parse_and_call_api_function(filename):
@@ -77,11 +67,11 @@ def read_csv_parse_and_call_api_function(filename):
     added = []
     with open(filename, 'rb') as csvfile:
         ReadLine = csv.reader(csvfile)
-        ReadLine.next() #skip the header row.
+        header_row = ReadLine.next()
         for i in ReadLine:
             if i:
                 try:
-                    args = changerow_to_api_args(i)
+                    args = changerow_to_api_args(i, header_row)
                     ADDED, msg = post(args)
                     if ADDED: added.append(i)
                     else: notadded.append(i+[' ',msg])
@@ -90,4 +80,4 @@ def read_csv_parse_and_call_api_function(filename):
     print 'notadded %s' % notadded
     print 'added %s' % added
 
-read_csv_parse_and_call_api_function(CSV_FILE_NAME) #the actual call with the csv file name.
+read_csv_parse_and_call_api_function(CSV_FILE_NAME)

@@ -1,4 +1,5 @@
 name, key, value, value2, show_on_chart, notes
 , , test2,,,
 iis server, Backup location, ,c:\sql\, yes, test notes
+sqlserver92, backup location, ,\home\d42\bakcup\, no, what is in the notes?
 
