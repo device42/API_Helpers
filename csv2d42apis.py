@@ -14,7 +14,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # step 2: Change lines 26-31
 # step 3: Execute the script
 ############################################################################################
-import types
 import urllib2
 import urllib
 import base64
@@ -23,61 +22,73 @@ import csv
 ##### Change Following lines to match your environment #####
 ### API URLS available at http://docs.device42.com/apis/ ###
 
-D42_API_URL = 'https://your-d42-fqdn-or-ip/api/1.0/custom_fields/appcomp/'  #make sure to end in /
+D42_API_URL = 'https://your-d42-fqdn-or-ip/api/1.0/custom_fields/appcomp/'  # make sure to end in /
 D42_USERNAME = 'your-d42-username-here'
 D42_PASSWORD = 'your-d42-password-here'
-API_METHOD = 'put'                                                          #whether you are doing a put or post call.
-CSV_FILE_NAME = 'file_name.csv'                                             #name of the file with the values being uploaded
-DEBUG = True                                                                #True or False. True for detailed info per call
+API_METHOD = 'put'                                                          # whether you are doing a put or post call.
+CSV_FILE_NAME = 'file_name.csv'                                             # name of the file with the values being uploaded
+DEBUG = True                                                                # True or False. True for detailed info per call
+
 
 def post(params):
-    data= urllib.urlencode(params)
+    data = urllib.urlencode(params)
     headers = {
-            'Authorization' : 'Basic '+ base64.b64encode(D42_USERNAME + ':' + D42_PASSWORD),
-            'Content-Type' : 'application/x-www-form-urlencoded'
-        }
+        'Authorization': 'Basic ' + base64.b64encode(D42_USERNAME + ':' + D42_PASSWORD),
+        'Content-Type': 'application/x-www-form-urlencoded'}
     req = urllib2.Request(D42_API_URL, data, headers)
-    if DEBUG: print '---REQUEST---',req.get_full_url()
-    if DEBUG: print req.headers
-    if DEBUG: print req.data
-    if API_METHOD == 'put': req.get_method = lambda: 'PUT'
+    if DEBUG:
+        print '---REQUEST---', req.get_full_url()
+    if DEBUG:
+        print req.headers
+    if DEBUG:
+        print req.data
+    if API_METHOD == 'put':
+        req.get_method = lambda: 'PUT'
     try:
         urllib2.urlopen(req)
         return True, ''
-    except urllib2.HTTPError, e:
-        error_response = e.read()
-        if DEBUG: print e.code, error_response
+    except urllib2.HTTPError, httperror:
+        error_response = httperror.read()
+        if DEBUG:
+            print httperror.code, error_response
         return False, error_response
 
-def to_ascii(s): #not used in example, but provided incase you would need to convert certain values to ascii
+
+def to_ascii(string):  # not used in example, but provided incase you would need to convert certain values to ascii
     """remove non-ascii characters"""
-    if type(s) == types.StringType:
-        return s.encode('ascii','ignore')
+    if isinstance(string, basestring):
+        return string.encode('ascii', 'ignore')
     else:
-        return str(s)
+        return str(string)
+
 
 def changerow_to_api_args(row_values, header_row):
     args = {}
     for i, heading in enumerate(header_row):
-        if row_values[i]: args.update({heading.strip().lower(): row_values[i].strip()})
+        if row_values[i]:
+            args.update({heading.strip().lower(): row_values[i].strip()})
     return args
 
-def read_csv_parse_and_call_api_function(filename):
+
+def read_csv_and_call_api_function(filename):
     notadded = []
     added = []
     with open(filename, 'rb') as csvfile:
-        ReadLine = csv.reader(csvfile)
-        header_row = ReadLine.next()
-        for i in ReadLine:
+        readline = csv.reader(csvfile)
+        header_row = readline.next()
+        for i in readline:
             if i:
                 try:
                     args = changerow_to_api_args(i, header_row)
-                    ADDED, msg = post(args)
-                    if ADDED: added.append(i)
-                    else: notadded.append(i+[' ',msg])
-                except Exception, Err:
-                    notadded.append(i+[str(Err),])
+                    added, msg = post(args)
+                    if added:
+                        added.append(i)
+                    else:
+                        notadded.append(i + [' ', msg])
+                except Exception, err:
+                    notadded.append(i + [str(err), ])
     print 'notadded %s' % notadded
     print 'added %s' % added
 
-read_csv_parse_and_call_api_function(CSV_FILE_NAME)
+
+read_csv_and_call_api_function(CSV_FILE_NAME)
